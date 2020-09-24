@@ -53,6 +53,7 @@
         function createDom() {
             let times = new Date().getTime();
             let w_box_id = 'w_dom-' + times;
+            let w_boxEchart_id = 'w_boxEchart-' + times;
             let w_boxTop_id = 'w_boxTop-' + times;
             let w_boxRight_id = 'w_boxRight-' + times;
             let w_boxBottom_id = 'w_boxBottom-' + times;
@@ -74,6 +75,7 @@
         </div>`
 
             w_Main.innerHTML += html;
+            controlTop(document.getElementById(w_boxTop_id));
         }
 
 
@@ -82,8 +84,8 @@
         }
 
         //控制盒子大小
-        function control(dom, ) {
-            dom.onmouseDown = (ev) => {
+        function controlTop(dom) {
+            dom.onmousedown = (ev) => {
                 var _event = ev || event;
 
                 var id = dom.id;
@@ -91,14 +93,17 @@
                     dom_obj[id] = {};
                 }
                 dom_obj[id].mouseTop = _event.clientY;
+                dom_obj[id].offsetTop = dom.offsetTop;
+                dom_obj[id].top = _event.clientY - dom.offsetTop;
+                console.log(dom_obj)
 
                 if (dom.setCapture) {
-                    dom.onmouseMove = dragMove;
+                    dom.onmouseMove = dragTopMove;
                     dom.onmouseUp = dragUp;
                     dom.setCapture();
                 } else {
-                    document.addEventListener('mousemove', dragMove, true);
-                    document.addEventListener('mouseup', dragUp, true);
+                    document.addEventListener('mousemove', dragTopMove, true);
+                    document.addEventListener('mouseup', dragTopUp, true);
                 }
             }
 
