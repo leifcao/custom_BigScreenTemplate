@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="css/common/common.css">
     <script src="js/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
     <script src="js/echarts/echarts.min.js" type="text/javascript"></script>
-    <script type="text/javascript">
+    <script type="text/javascript" src="js/src/bindDragMethod.js" async defer>
     </script>
 </head>
 
@@ -33,23 +33,6 @@
 
 
     <script type="text/javascript">
-        //动态绑定点击事件
-        var bindClick = (dom, fn) => {
-            dom.addEventListener('click', debounce(fn), true);
-        }
-
-
-        // 防抖处理
-        function debounce(fn) {
-            let timer = null;
-            return function() {
-                clearTimeout(timer);
-                timer = setTimeout(() => fn.call(this, arguments), 500);
-            }
-        }
-
-        bindClick(w_New, createDom)
-
         function createDom() {
             let times = new Date().getTime();
             let w_box_id = 'w_dom-' + times;
@@ -75,7 +58,8 @@
         </div>`
 
             w_Main.innerHTML += html;
-            controlTop(document.getElementById(w_boxTop_id));
+            controlBottom(document.getElementById(w_boxBottom_id));
+            controlRight(document.getElementById(w_boxRight_id));
         }
 
 
@@ -84,11 +68,11 @@
         }
 
         //控制盒子大小
-        function controlTop(dom) {
+        function controlBottom(dom) {
+            var id = dom.id;
             dom.onmousedown = (ev) => {
                 var _event = ev || event;
 
-                var id = dom.id;
                 if (!dom_obj[id]) {
                     dom_obj[id] = {};
                 }
@@ -98,30 +82,93 @@
                 console.log(dom_obj)
 
                 if (dom.setCapture) {
-                    dom.onmouseMove = dragTopMove;
-                    dom.onmouseUp = dragUp;
+                    dom.onmousemove = dragBottomMove;
+                    dom.onmouseup = dragBottomUp;
                     dom.setCapture();
                 } else {
-                    document.addEventListener('mousemove', dragTopMove, true);
-                    document.addEventListener('mouseup', dragTopUp, true);
+                    document.addEventListener('mousemove', dragBottomMove, true);
+                    document.addEventListener('mouseup', dragBottomUp, true);
                 }
             }
 
             // 控制上的方法
-            var dragTopMove = (ev) => {
+            var dragBottomMove = (ev) => {
                 var _event = ev || event;
+                let idArr = id.split('-');
+                // 右下角最小的div
+                let divHeight = document.getElementById(`w_boxRightBottom-${idArr[1]}`).offsetHeight;
+                // 最外层盒子
+                let mainDiv = document.getElementById(`w_dom-${idArr[1]}`);
+                let top = _event.clientY - dom_obj[id].top + divHeight;
 
+                if (top < divHeight) {
+                    top = divHeight;
+                } else if (top > document.documentElement.clientHeight - mainDiv.offsetTop) {
+                    top = document.documentElement.clientHeight - mainDiv.offsetTop - 5;
+                }
+                mainDiv.style.height = `${top}px`;
             }
 
             // 控制上抬起
-            var dragTopUp = (ev) => {
+            var dragBottomUp = (ev) => {
                 var _event = ev || event;
-
+                if (dom.releaseCapture) {
+                    dom.mousemove = null;
+                    dom.mouseup = null;
+                    dom.releaseCapture();
+                } else {
+                    document.removeEventListener('mousemove', dragBottomMove, true);
+                    document.removeEventListener('mouseup', dragBottomUp, true);
+                }
             }
 
-            // var drag
+        }
 
+        function controlRight(dom) {
+            var id = dom.id;
+            dom.onmousedown = (ev) => {
+                let _event = ev || event;
+                if (!dom_obj[id]) {
+                    dom_obj[id] = {}
+                }
 
+                dom_obj[id].right = _event.clientX - dom.offsetLeft;
+
+                if (dom.setCapture) {
+                    dom.onmousemove = dragRightMove;
+                    dom.onmouseup = dragRightUp;
+                    dom.setCapture();
+                } else {
+                    document.addEventListener('mousemove', dragRightMove, true);
+                    document.addEventListener('mouseup', dragRightUp, true);
+                }
+            }
+
+            var dragRightMove = (ev) => {
+                let _event = ev || event;
+                let idArr = id.split('-');
+                let divWidth = document.getElementById(`w_boxRightBottom-${idArr[1]}`).offsetWidth;
+                let mainDiv = document.getElementById(`w_dom-${idArr[1]}`);
+                let left = _event.clientX - dom_obj[id].right + divWidth;
+                if (left < divWidth) {
+                    left = divWidth;
+                } else if (left > document.documentElement.clientWidth - mainDiv.offsetLeft) {
+                    left = document.documentElement.clientWidth - mainDiv.offsetLeft - 5;
+                }
+
+                mainDiv.style.width = `${left}px`;
+            }
+
+            var dragRightUp = (ev) => {
+                if (dom.releaseCapture) {
+                    dom.onmousemove = null;
+                    dom.onmouseup = null;
+                    dom.relesaeCapture();
+                } else {
+                    document.removeEventListener('mousemove', dragRightMove, true);
+                    document.removeEventListener('mouseup', dragRightUp, true);
+                }
+            }
         }
     </script>
 

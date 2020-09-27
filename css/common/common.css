@@ -45,8 +45,9 @@ body {
     height: 200px;
     background-color: antiquewhite;
     position: relative;
-    margin-left: 5px;
-    margin-top: 5px;
+    left: 5px;
+    top: 5px;
+    border: 1px solid transparent;
 }
 
 .w_boxMain {
@@ -135,4 +136,12 @@ body {
     opacity: 0;
     z-index: 1;
     cursor: se-resize;
+}
+
+
+/* 盒子点击选中样式 */
+
+.w_boxLight {
+    z-index: 100;
+    border: 1px solid #ffffff;
 }
